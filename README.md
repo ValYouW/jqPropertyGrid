@@ -46,11 +46,14 @@ var theMeta = {
 };
 
 // Create the grid
-$('#propGrid').propertyGrid(theObj, theMeta);
+$('#propGrid').jqPropertyGrid(theObj, theMeta);
 
 // In order to get back the modified values:
-var theNewObj = $('#propGrid').propertyGrid('get');
+var theNewObj = $('#propGrid').jqPropertyGrid('get');
 ```
+The result would be:
+
+![jqPropertyGrid](https://github.com/ValYouW/jqPropertyGrid/raw/master/example/example.png)
 
 ### The metadata object
 As seen from the example above the metadata object **can** be used (it's optional) in order to describe the object properties.
@@ -69,4 +72,4 @@ Each property in the metadata object could have the following:
     * If the type is `options` then options should be an array with the drop-down values, if an element in the array is  `string` it will be used both as the value and text of the `option` element. If an element in the array is `object` then it should contains a `text` and `value` properties which would be used on the `option` element
 
 ### Live example
-See this CodePen page: http://codepen.io/ValYouW/pen/qonxK
+See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
