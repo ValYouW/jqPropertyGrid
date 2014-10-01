@@ -134,7 +134,7 @@
 			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
 
 		// If number and a jqueryUI spinner is loaded use it
-		} else if (type === 'number' && typeof $.fn.spinner === 'function') {
+		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
 			if (postCreateInitFuncs) { postCreateInitFuncs.push(initSpinner(elemId, meta.options)); }
 			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spinner('value');}; }
@@ -224,8 +224,18 @@
 	 * Handler for the spinner change event
 	 */
 	function onSpinnerChange() {
-		var min = $(this).spinner('option', 'min');
-		var max = $(this).spinner('option', 'max');
+		var $spinner = $(this);
+		var value = $spinner.spinner('value');
+
+		// If the value is null and the real value in the textbox is string we empty the textbox
+		if (value === null && typeof $spinner.val() === 'string') {
+			$spinner.val('');
+			return;
+		}
+
+		// Now check that the number is in the min/max range.
+		var min = $spinner.spinner('option', 'min');
+		var max = $spinner.spinner('option', 'max');
 		if (typeof min === 'number' && this.value < min) {
 			this.value = min;
 			return;
