@@ -151,6 +151,10 @@
 			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
 		}
 
+		if (typeof meta.description === 'string' && meta.description) {
+			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+		}
+
 		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
 	}
 

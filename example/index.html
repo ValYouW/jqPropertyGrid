@@ -35,16 +35,16 @@
 		// This is the metadata object that describes the target object properties (optional)
 		var theMeta = {
 			// Since string is the default no nees to specify type
-			font: { group: 'Editor', name: 'Font'},
+			font: { group: 'Editor', name: 'Font', description: 'The font editor to use'},
 			// The "options" would be passed to jQueryUI as its options
 			fontSize: { group: 'Editor', name: 'Font size', type: 'number', options: { min: 0, max: 20, step: 2 }},
 			// The "options" would be passed to Spectrum as its options
 			fontColor: { group: 'Editor', name: 'Font color', type: 'color', options: { preferredFormat: 'hex' }},
 			// since typeof jQuery is boolean no need to specify type, also since "jQuery" is also the display text no need to specify name
-			jQuery: { group: 'Plugins' },
+			jQuery: { group: 'Plugins', description: 'Whether or not to include jQuery on the page' },
 			// We can specify type boolean if we want...
-			modernizr: {group: 'Plugins', type: 'boolean'},
-			framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}]}
+			modernizr: {group: 'Plugins', type: 'boolean', description: 'Whether or not to include modernizr on the page'},
+			framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'}
 		};
 
 		// Create the grid

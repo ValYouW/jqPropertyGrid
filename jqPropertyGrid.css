@@ -25,3 +25,7 @@
     border: dotted 1px #ccc;
     padding: 5px;
 }
+
+.pgTooltip {
+    margin-left: 5px;
+}
