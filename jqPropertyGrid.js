@@ -41,8 +41,8 @@
 
 		var currGroup;
 		for (var prop in obj) {
-			// Skip if this is not a direct property or a function
-			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function') {
+			// Skip if this is not a direct property, a function, or its meta says it's non browsable
+			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function' || (meta[prop] && meta[prop].browsable === false)) {
 				continue;
 			}
 

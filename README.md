@@ -59,6 +59,7 @@ The result would be:
 As seen from the example above the metadata object **can** be used (it's optional) in order to describe the object properties.
 
 Each property in the metadata object could have the following:
+* browsable - Whether this property should be included in the grid, default is true (can be omitted).
 * group - The group this property belongs to
 * name - The display name of the property in the grid
 * type - The type of the property, supported are:
