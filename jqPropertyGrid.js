@@ -70,9 +70,11 @@
 			innerHTML += propertyRowsHTML[group];
 		}
 
-		// Finally we add the 'Other' group
-		innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME);
-		innerHTML += propertyRowsHTML[OTHER_GROUP_NAME];
+		// Finally we add the 'Other' group (if we have something there)
+		if (propertyRowsHTML[OTHER_GROUP_NAME]) {
+			innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME);
+			innerHTML += propertyRowsHTML[OTHER_GROUP_NAME];
+		}
 
 		// Close the table and apply it to the div
 		innerHTML += '</table>';
