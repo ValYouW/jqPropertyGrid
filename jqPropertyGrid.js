@@ -41,6 +41,11 @@
 
 		var currGroup;
 		for (var prop in obj) {
+			// Skip if this is not a direct property or a function
+			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function') {
+				continue;
+			}
+
 			// Check what is the group of the current property or use the default 'Other' group
 			currGroup = (meta[prop] && meta[prop].group) || OTHER_GROUP_NAME;
 
