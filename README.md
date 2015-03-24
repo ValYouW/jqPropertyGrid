@@ -27,7 +27,8 @@ var theObj = {
   jQuery: true,
   modernizr: false,
   framework: 'angular',
-  iHaveNoMeta: 'Never mind...'
+  iHaveNoMeta: 'Never mind...',
+  iAmReadOnly: 'I am a label which is not editable'
 };
 
 // This is the metadata object that describes the target object properties (optional)
@@ -42,7 +43,9 @@ var theMeta = {
     jQuery: { group: 'Plugins', description: 'Whether or not to include jQuery on the page' },
     // We can specify type boolean if we want...
     modernizr: {group: 'Plugins', type: 'boolean', description: 'Whether or not to include modernizr on the page'},
-    framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'}
+    framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'},
+    iAmReadOnly: { name: 'I am read only', type: 'label', description: 'Label types use a label tag for read-only properties', showHelp: false }
+    
 };
 
 // Create the grid
@@ -67,11 +70,12 @@ Each property in the metadata object could have the following:
     * number - If the jQueryUI Spinner is loaded then it would be used, otherwise textbox
     * color - If the Spectrum Color Picker is loaded then it would be used, otherwise textbox
     * options - A dropdown list would be used in case the metadata contains the `options` array property
+    * label - A label will be used, useful for uneditable / read-only properties
 * options - An extra options object per type:
     * If the type is `number` then the options would be passed as the jQueryUI Spinner options
     * If the type is `color` then the options would be passed as the Spectrum options
     * If the type is `options` then options should be an array with the drop-down values, if an element in the array is  `string` it will be used both as the value and text of the `option` element. If an element in the array is `object` then it should contains a `text` and `value` properties which would be used on the `option` element
 * description - A description of the property, will be used as tooltip on an hint element (a span with text "[?]")
-
+* showHelp - If set to false, will disable showing description's span with text "[?]" on property name. Will instead show tooltip on hover of property value (adds title attribute to property value). Can be omitted if default description effect is desired
 ### Live example
 See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
