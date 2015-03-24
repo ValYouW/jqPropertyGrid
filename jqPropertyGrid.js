@@ -167,7 +167,7 @@
 		}
 
 		if (typeof meta.description === 'string' && meta.description) {
-			if (meta.showhelp !== false) {
+			if (meta.showHelp === 'string' && meta.showHelp !== false) {
         			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
             		}
 		}
