@@ -154,7 +154,7 @@
 
 		// If label (for read-only)
         	} else if (type === 'label') {
-			if (meta.description !== undefined) {
+			if (typeof meta.description === 'string' && meta.description) {
 	                	valueHTML = '<label for="' + elemId + '" title="' + meta.description + '">' + value + '</label>';
 	            	} else {
 		                valueHTML = '<label for="' + elemId + '">' + value + '</label>';
