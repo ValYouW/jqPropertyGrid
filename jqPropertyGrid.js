@@ -152,6 +152,14 @@
 			if (postCreateInitFuncs) { postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options)); }
 			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spectrum('get').toHexString();}; }
 
+		// If label (for read-only)
+        	} else if (type === 'label') {
+			if (typeof meta.description === 'string' && meta.description) {
+	                	valueHTML = '<label for="' + elemId + '" title="' + meta.description + '">' + value + '</label>';
+	            	} else {
+		                valueHTML = '<label for="' + elemId + '">' + value + '</label>';
+			}
+
 		// Default is textbox
 		} else {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '"</input>';
@@ -159,7 +167,9 @@
 		}
 
 		if (typeof meta.description === 'string' && meta.description) {
-			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+			if (meta.showHelp === 'string' && meta.showHelp !== false) {
+        			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+            		}
 		}
 
 		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
