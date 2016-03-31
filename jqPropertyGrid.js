@@ -9,6 +9,7 @@
 (function($) {
 	var OTHER_GROUP_NAME = 'Other';
 	var GET_VALS_FUNC_KEY = 'pg.getValues';
+	var SET_VALS_FUNC_KEY = 'pg.setValues';
 	var pgIdSequence = 0;
 
 	/**
@@ -23,10 +24,21 @@
 				return this.data(GET_VALS_FUNC_KEY)();
 			}
 			return null;
-		} else if (typeof obj === 'string') {
+		}
+		// Check if user called the 'set' method. The param meta should be an object with 
+        // property keys and values
+		else if (typeof obj === 'string' && obj === 'set' && meta !== undefined) {
+		    if (typeof this.data(SET_VALS_FUNC_KEY) === 'function') {
+		        this.data(SET_VALS_FUNC_KEY)(meta);
+		        return;
+		    }
+		    return;
+		}
+		else if (typeof obj === 'string') {
 			console.error('jqPropertyGrid got invalid option:', obj);
 			return;
-		} else if (typeof obj !== 'object' || obj === null) {
+		}
+		else if (typeof obj !== 'object' || obj === null) {
 			console.error('jqPropertyGrid must get an object in order to initialize the grid.');
 			return;
 		}
@@ -37,6 +49,7 @@
 		var groupsHeaderRowHTML = { };
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
+		var setValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
 
 		var currGroup;
@@ -58,7 +71,8 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop],
+                postCreateInitFuncs, getValueFuncs, setValueFuncs);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -99,8 +113,16 @@
 
 			return result;
 		};
-
 		this.data(GET_VALS_FUNC_KEY, getValues);
+
+		var setValues = function (values) {
+		    for (var prop in setValueFuncs) {
+		        if (typeof setValueFuncs[prop] !== 'function' || values[prop] === undefined) { continue; }
+		        setValueFuncs[prop](values[prop]);
+		    }
+		};
+		this.data(SET_VALS_FUNC_KEY, setValues);
+
 	};
 
 	/**
@@ -118,9 +140,10 @@
 	 * @param {*} value - The current property value
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
-	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
+	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the property selected value
+	 * @param {object.<string, function>} [setValueFuncs] - A dictionary where the key is the property name and the value is a function to set the property value
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, setValueFuncs) {
 		if (!name) {return '';}
 		meta = meta || {};
 		// We use the name in the meta if available
@@ -133,24 +156,44 @@
 		// If boolean create checkbox
 		if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
 			valueHTML = '<input type="checkbox" id="' + elemId + '" value="' + name + '"' + (value ? ' checked' : '') + ' />';
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).prop('checked');}; }
+			if (getValueFuncs) {
+			    getValueFuncs[name] = function () { return $('#' + elemId).prop('checked'); };
+			}
+			if (setValueFuncs) {
+			    setValueFuncs[name] = function (value) { $('#' + elemId).prop('checked', value); };
+			}
 
 		// If options create drop-down list
 		} else if (type === 'options' && Array.isArray(meta.options)) {
 			valueHTML = getSelectOptionHtml(elemId, value, meta.options);
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
+			if (getValueFuncs) {
+			    getValueFuncs[name] = function () { return $('#' + elemId).val(); };
+			}
+			if (setValueFuncs) {
+			    setValueFuncs[name] = function (value) { $('#' + elemId).val(value); };
+			}
 
 		// If number and a jqueryUI spinner is loaded use it
 		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
 			if (postCreateInitFuncs) { postCreateInitFuncs.push(initSpinner(elemId, meta.options)); }
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spinner('value');}; }
+			if (getValueFuncs) {
+			    getValueFuncs[name] = function () { return $('#' + elemId).spinner('value'); };
+			}
+			if (setValueFuncs) {
+			    setValueFuncs[name] = function (value) { $('#' + elemId).spinner('value', value); };
+			}
 
 		// If color and we have the spectrum color picker use it
 		} else if (type === 'color' && typeof $.fn.spectrum === 'function') {
 			valueHTML = '<input type="text" id="' + elemId + '" />';
 			if (postCreateInitFuncs) { postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options)); }
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spectrum('get').toHexString();}; }
+			if (getValueFuncs) {
+			    getValueFuncs[name] = function () { return $('#' + elemId).spectrum('get').toHexString(); };
+			}
+			if (setValueFuncs) {
+			    setValueFuncs[name] = function (value) { $('#' + elemId).spectrum('set', value); };
+			}
 
 		// If label (for read-only)
         	} else if (type === 'label') {
@@ -163,8 +206,13 @@
 		// Default is textbox
 		} else {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '"</input>';
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
-		}
+			if (getValueFuncs) {
+			    getValueFuncs[name] = function () { return $('#' + elemId).val(); };
+			}
+			if (setValueFuncs) {
+			    setValueFuncs[name] = function (value) { $('#' + elemId).val(value); };
+			}
+        }
 
 		if (typeof meta.description === 'string' && meta.description && 
 		   (typeof meta.showHelp === 'undefined' || meta.showHelp)) {
