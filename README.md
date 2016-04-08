@@ -79,3 +79,10 @@ Each property in the metadata object could have the following:
 * showHelp - If set to false, will disable showing description's span with text "[?]" on property name. Will instead show tooltip on hover of property value (adds title attribute to property value). Can be omitted if default description effect is desired
 ### Live example
 See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
+
+## Contributing
+You are welcome to send pull requests that will make this module better. Before you send your PR please make sure that:
+
+1. There are no `jshint` nor `jscs` errors (you can use the `grunt jshint` and `grunt jscs` for that)
+2. If you are adding a new feature make sure to update the `README` accordingly
+3. Thx !
