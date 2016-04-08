@@ -6,7 +6,7 @@
  */
 
 /* jshint -W089 */
-(function($) {
+(function($) {// jscs:ignore requireNamedUnassignedFunctions
 	var OTHER_GROUP_NAME = 'Other';
 	var GET_VALS_FUNC_KEY = 'pg.getValues';
 	var pgIdSequence = 0;
@@ -22,6 +22,7 @@
 			if (typeof this.data(GET_VALS_FUNC_KEY) === 'function') {
 				return this.data(GET_VALS_FUNC_KEY)();
 			}
+
 			return null;
 		} else if (typeof obj === 'string') {
 			console.error('jqPropertyGrid got invalid option:', obj);
@@ -33,8 +34,8 @@
 
 		// Seems like we are ok to create the grid
 		meta = meta && typeof meta === 'object' ? meta : {};
-		var propertyRowsHTML = { OTHER_GROUP_NAME: '' };
-		var groupsHeaderRowHTML = { };
+		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
+		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
@@ -93,7 +94,10 @@
 		var getValues = function() {
 			var result = {};
 			for (var prop in getValueFuncs) {
-				if (typeof getValueFuncs[prop] !== 'function') {continue;}
+				if (typeof getValueFuncs[prop] !== 'function') {
+					continue;
+				}
+
 				result[prop] = getValueFuncs[prop]();
 			}
 
@@ -121,7 +125,10 @@
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
 	 */
 	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs) {
-		if (!name) {return '';}
+		if (!name) {
+			return '';
+		}
+
 		meta = meta || {};
 		// We use the name in the meta if available
 		var displayName = meta.name || name;
@@ -133,41 +140,67 @@
 		// If boolean create checkbox
 		if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
 			valueHTML = '<input type="checkbox" id="' + elemId + '" value="' + name + '"' + (value ? ' checked' : '') + ' />';
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).prop('checked');}; }
-
-		// If options create drop-down list
-		} else if (type === 'options' && Array.isArray(meta.options)) {
-			valueHTML = getSelectOptionHtml(elemId, value, meta.options);
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
-
-		// If number and a jqueryUI spinner is loaded use it
-		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
-			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
-			if (postCreateInitFuncs) { postCreateInitFuncs.push(initSpinner(elemId, meta.options)); }
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spinner('value');}; }
-
-		// If color and we have the spectrum color picker use it
-		} else if (type === 'color' && typeof $.fn.spectrum === 'function') {
-			valueHTML = '<input type="text" id="' + elemId + '" />';
-			if (postCreateInitFuncs) { postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options)); }
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).spectrum('get').toHexString();}; }
-
-		// If label (for read-only)
-        	} else if (type === 'label') {
-			if (typeof meta.description === 'string' && meta.description) {
-	                	valueHTML = '<label for="' + elemId + '" title="' + meta.description + '">' + value + '</label>';
-	            	} else {
-		                valueHTML = '<label for="' + elemId + '">' + value + '</label>';
+			if (getValueFuncs) {
+				getValueFuncs[name] = function() {
+					return $('#' + elemId).prop('checked');
+				};
 			}
 
-		// Default is textbox
+			// If options create drop-down list
+		} else if (type === 'options' && Array.isArray(meta.options)) {
+			valueHTML = getSelectOptionHtml(elemId, value, meta.options);
+			if (getValueFuncs) {
+				getValueFuncs[name] = function() {
+					return $('#' + elemId).val();
+				};
+			}
+
+			// If number and a jqueryUI spinner is loaded use it
+		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
+			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
+			if (postCreateInitFuncs) {
+				postCreateInitFuncs.push(initSpinner(elemId, meta.options));
+			}
+
+			if (getValueFuncs) {
+				getValueFuncs[name] = function() {
+					return $('#' + elemId).spinner('value');
+				};
+			}
+
+			// If color and we have the spectrum color picker use it
+		} else if (type === 'color' && typeof $.fn.spectrum === 'function') {
+			valueHTML = '<input type="text" id="' + elemId + '" />';
+			if (postCreateInitFuncs) {
+				postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options));
+			}
+
+			if (getValueFuncs) {
+				getValueFuncs[name] = function() {
+					return $('#' + elemId).spectrum('get').toHexString();
+				};
+			}
+
+			// If label (for read-only)
+		} else if (type === 'label') {
+			if (typeof meta.description === 'string' && meta.description) {
+				valueHTML = '<label for="' + elemId + '" title="' + meta.description + '">' + value + '</label>';
+			} else {
+				valueHTML = '<label for="' + elemId + '">' + value + '</label>';
+			}
+
+			// Default is textbox
 		} else {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '"</input>';
-			if (getValueFuncs) { getValueFuncs[name] = function() {return $('#'+elemId).val();}; }
+			if (getValueFuncs) {
+				getValueFuncs[name] = function() {
+					return $('#' + elemId).val();
+				};
+			}
 		}
 
-		if (typeof meta.description === 'string' && meta.description && 
-		   (typeof meta.showHelp === 'undefined' || meta.showHelp)) {
+		if (typeof meta.description === 'string' && meta.description &&
+			(typeof meta.showHelp === 'undefined' || meta.showHelp)) {
 			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
 		}
 
@@ -187,10 +220,14 @@
 		options = options || [];
 
 		var html = '<select';
-		if (id) {html += ' id="' + id + '"';}
+		if (id) {
+			html += ' id="' + id + '"';
+		}
+
 		html += '>';
 
-		var text, value;
+		var text;
+		var value;
 		for (var i = 0; i < options.length; i++) {
 			value = typeof options[i] === 'object' ? options[i].value : options[i];
 			text = typeof options[i] === 'object' ? options[i].text : options[i];
@@ -210,7 +247,9 @@
 	 * @returns {function}
 	 */
 	function initSpinner(id, options) {
-		if (!id) {return null;}
+		if (!id) {
+			return null;
+		}
 		// Copy the options so we won't change the user "copy"
 		var opts = {};
 		$.extend(opts, options);
@@ -218,7 +257,7 @@
 		// Add a handler to the change event to verify the min/max (only if not provided by the user)
 		opts.change = typeof opts.change === 'undefined' ? onSpinnerChange : opts.change;
 
-		return function() {
+		return function onSpinnerInit() {
 			$('#' + id).spinner(opts);
 		};
 	}
@@ -231,11 +270,17 @@
 	 * @returns {function}
 	 */
 	function initColorPicker(id, color, options) {
-		if (!id) {return null;}
+		if (!id) {
+			return null;
+		}
+
 		var opts = {};
 		$.extend(opts, options);
-		if (typeof color === 'string') {opts.color = color;}
-		return function() {
+		if (typeof color === 'string') {
+			opts.color = color;
+		}
+
+		return function onColorPickerInit() {
 			$('#' + id).spectrum(opts);
 		};
 	}
