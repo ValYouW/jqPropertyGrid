@@ -48,8 +48,14 @@ var theMeta = {
     
 };
 
+// Callback function. Called when any entry in the grid is changedCallback
+        function propertyChangedCallback(grid, name, value) {
+            // handle callback
+            console.log(name + ' ' + value);
+        }
+
 // Create the grid
-$('#propGrid').jqPropertyGrid(theObj, theMeta);
+$('#propGrid').jqPropertyGrid(theObj, theMeta, propertyChangedCallback);
 
 // In order to get back the modified values:
 var theNewObj = $('#propGrid').jqPropertyGrid('get');
