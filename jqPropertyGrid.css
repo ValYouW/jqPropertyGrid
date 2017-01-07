@@ -7,6 +7,7 @@
 .pgTable {
     border: solid 1px #95B8E7;
     border-spacing: 0;
+	width: 100%;
 }
 
 .pgGroupRow {
@@ -16,6 +17,8 @@
 
 .pgGroupCell {
     padding: 5px;
+	color: black;
+
 }
 
 .pgRow{
@@ -29,3 +32,11 @@
 .pgTooltip {
     margin-left: 5px;
 }
+
+table, tr, td, th {
+    border-collapse: collapse;
+}
+
+    tr.pgGroupRow {
+        cursor: pointer;
+    }

@@ -105,6 +105,20 @@
 		};
 
 		this.data(GET_VALS_FUNC_KEY, getValues);
+		
+		// Support Collapse Mode <START>
+		$('.pgGroupRow').click(function () {
+
+		    var insideHtml = $(this).html();
+		    var insideText = $(insideHtml).text();
+		    isPlus = insideText[0] === '+' ? true : false;
+		    var subText = insideText.substring(1);
+		    var currentText = isPlus ? "-" + subText : "+" + subText;
+		    var currentHtml = insideHtml.replace(insideText, currentText);
+		    $(this).html(currentHtml);
+		    $(this).nextUntil('tr.pgGroupRow').slideToggle(1);
+		});
+	    // Support Collapse Mode <END>
 	};
 
 	/**
@@ -112,7 +126,7 @@
 	 * @param {string} displayName - The group display name
 	 */
 	function getGroupHeaderRowHtml(displayName) {
-		return '<tr class="pgGroupRow"><td colspan="2" class="pgGroupCell">' + displayName + '</td></tr>';
+		return '<tr class="pgGroupRow"><td colspan="2" class="pgGroupCell">- ' + displayName + '</td></tr>'; // -  Added for Collapse Support
 	}
 
 	/**
