@@ -73,7 +73,7 @@
 
         // Finally we add the 'Other' group (if we have something there)
         if (propertyRowsHTML[OTHER_GROUP_NAME]) {
-            innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME, isCollapsible);
+            innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME);
             innerHTML += propertyRowsHTML[OTHER_GROUP_NAME];
         }
 
@@ -150,7 +150,7 @@
 	 * Gets the html of a group header row
 	 * @param {string} displayName - The group display name
 	 */
-    function getGroupHeaderRowHtml(displayName, isCollapsible) {
+    function getGroupHeaderRowHtml(displayName) {
         return '<tr class="pgGroupRow"><td colspan="2" class="pgGroupCell">- ' + displayName + '</td></tr>'; // - (Minus with a space) Added for Collapse Support        
     }
 
