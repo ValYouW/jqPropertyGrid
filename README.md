@@ -48,8 +48,13 @@ var theMeta = {
     
 };
 
+// Options object
+var options = {
+	meta: theMeta
+};
+
 // Create the grid
-$('#propGrid').jqPropertyGrid(theObj, theMeta);
+$('#propGrid').jqPropertyGrid(theObj, options);
 
 // In order to get back the modified values:
 var theNewObj = $('#propGrid').jqPropertyGrid('get');
