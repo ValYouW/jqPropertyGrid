@@ -5,6 +5,11 @@
  * License: MIT
  */
 
+/**
+ * @typedef {object} JQPropertyGridOptions
+ * @property {object} meta - A metadata object describing the obj properties
+ */
+
 /* jshint -W089 */
 (function($) {// jscs:ignore requireNamedUnassignedFunctions
 	var OTHER_GROUP_NAME = 'Other';
@@ -14,9 +19,9 @@
 	/**
 	 * Generates the property grid
 	 * @param {object} obj - The object whose properties we want to display
-	 * @param {object} meta - A metadata object describing the obj properties
+	 * @param {JQPropertyGridOptions} options - Options object for the component
 	 */
-	$.fn.jqPropertyGrid = function(obj, meta) {
+	$.fn.jqPropertyGrid = function(obj, options) {
 		// Check if the user called the 'get' function (to get the values back from the grid).
 		if (typeof obj === 'string' && obj === 'get') {
 			if (typeof this.data(GET_VALS_FUNC_KEY) === 'function') {
@@ -32,8 +37,12 @@
 			return;
 		}
 
+		// Normalize options
+		options = options && typeof options === 'object' ? options : {};
+		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
+
 		// Seems like we are ok to create the grid
-		meta = meta && typeof meta === 'object' ? meta : {};
+		var meta = options.meta;
 		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
 		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
