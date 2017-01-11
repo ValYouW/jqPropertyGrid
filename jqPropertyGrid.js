@@ -16,7 +16,7 @@
 	 * @param {object} obj - The object whose properties we want to display
 	 * @param {object} meta - A metadata object describing the obj properties
 	 */
-    $.fn.jqPropertyGrid = function (obj, meta, isCollapsible) {
+    $.fn.jqPropertyGrid = function (obj, meta, option) {
         // Check if the user called the 'get' function (to get the values back from the grid).
         if (typeof obj === 'string' && obj === 'get') {
             if (typeof this.data(GET_VALS_FUNC_KEY) === 'function') {
@@ -107,8 +107,8 @@
         this.data(GET_VALS_FUNC_KEY, getValues);
 
 
-        if (isCollapsible === true) {
 
+        if (option.isCollapsible === true) {
             // Support Collapse Mode <START>
             $('.pgGroupRow').click(function () {
 
@@ -142,6 +142,18 @@
 
             });
         }
+
+        $.each(meta, function (index, value) {
+            var metaType = value["type"];
+            var id = pgId + index;
+            if (metaType != undefined) {
+                option.onType(id, metaType);
+            }
+            else {
+                option.onType(id, "text");
+
+            }
+        });
         // Support Collapse Mode <END>
 
     };
