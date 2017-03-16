@@ -159,7 +159,9 @@
 		if (isCustomType !== false) {
 			valueHTML = isCustomType.html(elemId, name, value, meta);
 			if (getValueFuncs) {
-				if (isCustomType.hasOwnProperty('valueFn')) {
+				if (isCustomType.hasOwnProperty('makeValueFn')) {
+					getValueFuncs[name] = isCustomType.makeValueFn(elemId, name, value, meta);
+				} else if (isCustomType.hasOwnProperty('valueFn')) {
 					getValueFuncs[name] = isCustomType.valueFn;
 				} else {
 					getValueFuncs[name] = function() {

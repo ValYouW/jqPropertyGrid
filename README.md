@@ -58,6 +58,7 @@ var theCustomTypes = {
             return valueHTML;
         },
 		valueFn: false // value-return function (optional). If unset, default will be "function() { return $('#' + elemId).val(); }", set to false to disable it
+		// You can also put a makeValueFn function (taking elemId, name, value, meta parameters) to create value-return function on the fly (it will override valuefn setting), returning non-function will disable getting value for this property
     }
 };
 
