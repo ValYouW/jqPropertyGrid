@@ -85,6 +85,14 @@ Each property in the metadata object could have the following:
 ### Live example
 See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
 
+## Local Setup
+To install dev dependencies & run locally
+```
+npm install
+npm start
+```
+Then open browser to http://localhost:8080/example/
+
 ## Contributing
 You are welcome to send pull requests that will make this module better. Before you send your PR please make sure that:
 

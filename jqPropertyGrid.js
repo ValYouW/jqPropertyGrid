@@ -39,10 +39,9 @@
 
 		// Normalize options
 		options = options && typeof options === 'object' ? options : {};
-		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
 
 		// Seems like we are ok to create the grid
-		var meta = options.meta;
+		var meta = options.meta && typeof options.meta === 'object' ? options.meta : options;
 		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
 		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
