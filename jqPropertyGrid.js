@@ -133,6 +133,7 @@
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
+	 * @param {object} customTypes - an object describing additionnal types renderers
 	 */
 	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, customTypes) {
 		if (!name) {

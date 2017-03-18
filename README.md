@@ -50,8 +50,7 @@ var theMeta = {
 
 // This is the customTypes object that describes additionnal types, and their renderers (optional)
 var theCustomTypes = {
-    ref: {
-        name: 'ref', // name of custom type (required)
+    ref: { // name of custom type
         html: function(elemId, name, value, meta) { // custom renderer for type (required)
             var onclick = '';
             valueHTML = value + ' <i class="fa fa-external-link" onclick="selectRef(\'' + value + '\')"></i>';
