@@ -50,15 +50,15 @@ var theMeta = {
 
 // This is the customTypes object that describes additionnal types, and their renderers (optional)
 var theCustomTypes = {
-	ref: {
+    ref: {
         name: 'ref', // name of custom type (required)
         html: function(elemId, name, value, meta) { // custom renderer for type (required)
             var onclick = '';
             valueHTML = value + ' <i class="fa fa-external-link" onclick="selectRef(\'' + value + '\')"></i>';
             return valueHTML;
         },
-		valueFn: false // value-return function (optional). If unset, default will be "function() { return $('#' + elemId).val(); }", set to false to disable it
-		// You can also put a makeValueFn function (taking elemId, name, value, meta parameters) to create value-return function on the fly (it will override valuefn setting), returning non-function will disable getting value for this property
+        valueFn: false // value-return function (optional). If unset, default will be "function() { return $('#' + elemId).val(); }", set to false to disable it
+        // You can also put a makeValueFn function (taking elemId, name, value, meta parameters) to create value-return function on the fly (it will override valuefn setting), returning non-function will disable getting value for this property
     }
 };
 
