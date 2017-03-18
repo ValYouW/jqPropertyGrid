@@ -4,7 +4,7 @@ A small and simple property grid in JS to view/edit POJOs, excellent if you have
 ### Dependencies
 * jQuery - This is mandatory
 * jQueryUI - If jQueryUI is loaded so properties that are defined as `number` would be displayed using the jQueryUI spinner widget
-* spectrum - A very cool Color Picker that will be used (if loaded) on properties that are defined as `color` [see spectrum on GitHub](https://github.com/bgrins/spectrum) 
+* spectrum - A very cool Color Picker that will be used (if loaded) on properties that are defined as `color` [see spectrum on GitHub](https://github.com/bgrins/spectrum)
 
 ### Usage
 The property grid needs a `div` to live in, then just initialize it by calling to the `jqPropertyGrid` method on it:
@@ -45,12 +45,26 @@ var theMeta = {
     modernizr: {group: 'Plugins', type: 'boolean', description: 'Whether or not to include modernizr on the page'},
     framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'},
     iAmReadOnly: { name: 'I am read only', type: 'label', description: 'Label types use a label tag for read-only properties', showHelp: false }
-    
+
+};
+
+// This is the customTypes object that describes additionnal types, and their renderers (optional)
+var theCustomTypes = {
+    ref: { // name of custom type
+        html: function(elemId, name, value, meta) { // custom renderer for type (required)
+            var onclick = '';
+            valueHTML = value + ' <i class="fa fa-external-link" onclick="selectRef(\'' + value + '\')"></i>';
+            return valueHTML;
+        },
+        valueFn: false // value-return function (optional). If unset, default will be "function() { return $('#' + elemId).val(); }", set to false to disable it
+        // You can also put a makeValueFn function (taking elemId, name, value, meta parameters) to create value-return function on the fly (it will override valuefn setting), returning non-function will disable getting value for this property
+    }
 };
 
 // Options object
 var options = {
-	meta: theMeta
+	meta: theMeta,
+	customTypes: theCustomTypes
 };
 
 // Create the grid

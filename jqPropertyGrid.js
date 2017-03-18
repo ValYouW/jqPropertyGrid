@@ -48,6 +48,7 @@
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
+		var customTypes = options.customTypes || {};
 
 		var currGroup;
 		for (var prop in obj) {
@@ -68,7 +69,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, customTypes);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -132,8 +133,9 @@
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
+	 * @param {object} customTypes - an object describing additionnal types renderers
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, customTypes) {
 		if (!name) {
 			return '';
 		}
@@ -146,8 +148,32 @@
 
 		var valueHTML;
 
+		// check if type is registered in customTypes
+		var isCustomType = false;
+		for (var customType in customTypes) {
+			if (type === customType) {
+				isCustomType = customTypes[customType];
+			}
+		}
+
+		// If value was handled by custom type
+		if (isCustomType !== false) {
+			valueHTML = isCustomType.html(elemId, name, value, meta);
+			if (getValueFuncs) {
+				if (isCustomType.hasOwnProperty('makeValueFn')) {
+					getValueFuncs[name] = isCustomType.makeValueFn(elemId, name, value, meta);
+				} else if (isCustomType.hasOwnProperty('valueFn')) {
+					getValueFuncs[name] = isCustomType.valueFn;
+				} else {
+					getValueFuncs[name] = function() {
+						return $('#' + elemId).val();
+					};
+				}
+			}
+		}
+
 		// If boolean create checkbox
-		if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
+		else if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
 			valueHTML = '<input type="checkbox" id="' + elemId + '" value="' + name + '"' + (value ? ' checked' : '') + ' />';
 			if (getValueFuncs) {
 				getValueFuncs[name] = function() {
