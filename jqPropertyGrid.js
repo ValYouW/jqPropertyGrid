@@ -39,10 +39,9 @@
 
 		// Normalize options
 		options = options && typeof options === 'object' ? options : {};
-		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
 
 		// Seems like we are ok to create the grid
-		var meta = options.meta;
+		var meta = options.meta && typeof options.meta === 'object' ? options.meta : options;
 		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
 		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
@@ -68,7 +67,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], options, postCreateInitFuncs, getValueFuncs);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -130,10 +129,11 @@
 	 * @param {string} name - The property name
 	 * @param {*} value - The current property value
 	 * @param {object} meta - A metadata object describing this property
+	 * @param {object} options - The global options object
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs) {
+	function getPropertyRowHtml(pgId, name, value, meta, options, postCreateInitFuncs, getValueFuncs) {
 		if (!name) {
 			return '';
 		}
@@ -208,9 +208,14 @@
 			}
 		}
 
+		var helpIcon = '[?]';
+		if (options.useFontAwesome) {
+			helpIcon = '<i class="fa fa-question-circle-o"></i>';
+		}
+
 		if (typeof meta.description === 'string' && meta.description &&
 			(typeof meta.showHelp === 'undefined' || meta.showHelp)) {
-			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+			displayName += '<span class="pgTooltip" title="' + meta.description + '">' + helpIcon + '</span>';
 		}
 
 		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
