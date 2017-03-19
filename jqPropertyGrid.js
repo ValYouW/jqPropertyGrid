@@ -39,9 +39,10 @@
 
 		// Normalize options
 		options = options && typeof options === 'object' ? options : {};
+		options.customTypes = options.customTypes || {};
+		var meta = options.meta && typeof options.meta === 'object' ? options.meta : options;
 
 		// Seems like we are ok to create the grid
-		var meta = options.meta && typeof options.meta === 'object' ? options.meta : options;
 		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
 		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
@@ -67,7 +68,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], options, postCreateInitFuncs, getValueFuncs);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -129,11 +130,11 @@
 	 * @param {string} name - The property name
 	 * @param {*} value - The current property value
 	 * @param {object} meta - A metadata object describing this property
-	 * @param {object} options - The global options object
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
+	 * @param {object} options - The global options object
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, options, postCreateInitFuncs, getValueFuncs) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options) {
 		if (!name) {
 			return '';
 		}
@@ -146,8 +147,32 @@
 
 		var valueHTML;
 
+		// check if type is registered in customTypes
+		var isCustomType = false;
+		for (var customType in options.customTypes) {
+			if (type === customType) {
+				isCustomType = options.customTypes[customType];
+			}
+		}
+
+		// If value was handled by custom type
+		if (isCustomType !== false) {
+			valueHTML = isCustomType.html(elemId, name, value, meta);
+			if (getValueFuncs) {
+				if (isCustomType.hasOwnProperty('makeValueFn')) {
+					getValueFuncs[name] = isCustomType.makeValueFn(elemId, name, value, meta);
+				} else if (isCustomType.hasOwnProperty('valueFn')) {
+					getValueFuncs[name] = isCustomType.valueFn;
+				} else {
+					getValueFuncs[name] = function() {
+						return $('#' + elemId).val();
+					};
+				}
+			}
+		}
+
 		// If boolean create checkbox
-		if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
+		else if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
 			valueHTML = '<input type="checkbox" id="' + elemId + '" value="' + name + '"' + (value ? ' checked' : '') + ' />';
 			if (getValueFuncs) {
 				getValueFuncs[name] = function() {
