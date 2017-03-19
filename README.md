@@ -83,6 +83,7 @@ As seen from the example above the metadata object **can** be used (it's optiona
 Each property in the metadata object could have the following:
 * browsable - Whether this property should be included in the grid, default is true (can be omitted).
 * group - The group this property belongs to
+* colspan2 - Boolean. If true then property input will span both columns and will have no name/label (useful for textarea custom type)
 * name - The display name of the property in the grid
 * type - The type of the property, supported are:
     * boolean - A checkbox would be used
