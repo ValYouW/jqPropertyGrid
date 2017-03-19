@@ -88,7 +88,7 @@
 				}
 			};
 
-			$('#propGrid2').jqPropertyGrid(theObj, {meta: theMeta, customTypes: theCustomTypes});
+			$('#propGrid2').jqPropertyGrid(theObj, {useFontAwesome: true, meta: theMeta, customTypes: theCustomTypes});
 
 			$('#btnGetValues').click(function() {
 				var first = JSON.stringify($('#propGrid').jqPropertyGrid('get'), null, '\t');
