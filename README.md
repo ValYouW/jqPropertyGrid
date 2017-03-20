@@ -106,7 +106,7 @@ To install dev dependencies & run locally
 npm install
 npm start
 ```
-Then open browser to http://localhost:8080/example/
+Then open browser to http://localhost:8080/
 
 ## Contributing
 You are welcome to send pull requests that will make this module better. Before you send your PR please make sure that:
