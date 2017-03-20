@@ -83,6 +83,7 @@ As seen from the example above the metadata object **can** be used (it's optiona
 Each property in the metadata object could have the following:
 * browsable - Whether this property should be included in the grid, default is true (can be omitted).
 * group - The group this property belongs to
+* colspan2 - Boolean. If true then property input will span both columns and will have no name/label (useful for textarea custom type)
 * name - The display name of the property in the grid
 * type - The type of the property, supported are:
     * boolean - A checkbox would be used
@@ -98,6 +99,14 @@ Each property in the metadata object could have the following:
 * showHelp - If set to false, will disable showing description's span with text "[?]" on property name. Will instead show tooltip on hover of property value (adds title attribute to property value). Can be omitted if default description effect is desired
 ### Live example
 See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
+
+## Local Setup
+To install dev dependencies & run locally
+```
+npm install
+npm start
+```
+Then open browser to http://localhost:8080/
 
 ## Contributing
 You are welcome to send pull requests that will make this module better. Before you send your PR please make sure that:

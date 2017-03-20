@@ -10,15 +10,15 @@
 		}
 	</style>
 
-	<link rel='stylesheet' href='../jqPropertyGrid.css' />
+	<link rel='stylesheet' href='./jqPropertyGrid.css' />
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-	<link rel='stylesheet' href='http://bgrins.github.com/spectrum/spectrum.css' />
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="http://bgrins.github.com/spectrum/spectrum.js" ></script>
-	<script src="../jqPropertyGrid.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+	<script src="./jqPropertyGrid.js"></script>
 
 	<script>
 		$(function() {
@@ -60,7 +60,8 @@
 				modernizr: false,
 				framework: 'angular',
 				iHaveNoMeta: 'Never mind...',
-				icon: 'HOME'
+				icon: 'HOME',
+				choices: ["Choice 1", "Choice 2", "A really long choice which should trigger the horizontal scrollbar!"]
 			};
 
 			// This is the metadata object that describes the target object properties (optional)
@@ -76,7 +77,8 @@
 				// We can specify type boolean if we want...
 				modernizr: {group: 'Plugins', type: 'boolean', description: 'Whether or not to include modernizr on the page'},
 				framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'},
-				icon: {name: 'Icon', type: 'icon'}
+				icon: {name: 'Icon', type: 'icon'},
+				choices: {name: 'n/a', group: 'Choices (1 per line):', type: 'textarea', colspan2: true}
 			};
 
 			var theCustomTypes = {
@@ -85,10 +87,29 @@
 						return '<i class="fa fa-' + value + '"></i>';
 					},
 					valueFn: function() {return 'Icon field value';}
+				},
+				textarea: {
+					html: function(elemId, name, value, meta) {
+						var html = '<textarea id="' + elemId + '" rows=6 style="white-space: nowrap; overflow-x: auto; width:100%">';
+						if (value instanceof Array) {
+							html += value.join("\n");
+						}
+						html += '</textarea>';
+						return html;
+					},
+					makeValueFn: function(elemId, name, value, meta) {
+						return function() {
+							return $('#' + elemId).val().split('\n');
+						}
+					}
 				}
 			};
 
-			$('#propGrid2').jqPropertyGrid(theObj, {meta: theMeta, customTypes: theCustomTypes});
+			$('#propGrid2').jqPropertyGrid(theObj, {
+				useFontAwesome: true, 
+				meta: theMeta, 
+				customTypes: theCustomTypes
+			});
 
 			$('#btnGetValues').click(function() {
 				var first = JSON.stringify($('#propGrid').jqPropertyGrid('get'), null, '\t');

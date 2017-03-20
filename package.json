@@ -1,12 +1,14 @@
 {
   "name": "jqpropertygrid",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A small and simple property grid in JS to view/edit POJOs, excellent if you have a \"settings\" object you want to give the user to edit",
   "main": "jqPropertyGrid.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
+    "start": "node node_modules/http-server/bin/http-server",
+    "postversion": "git push && git push --tags",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +29,7 @@
     "grunt": "^1.0.1",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-jscs": "^2.8.0",
+    "http-server": "^0.9.0",
     "load-grunt-tasks": "^3.5.0"
   }
 }

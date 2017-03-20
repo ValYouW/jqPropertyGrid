@@ -39,16 +39,15 @@
 
 		// Normalize options
 		options = options && typeof options === 'object' ? options : {};
-		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
+		options.customTypes = options.customTypes || {};
+		var meta = options.meta && typeof options.meta === 'object' ? options.meta : options;
 
 		// Seems like we are ok to create the grid
-		var meta = options.meta;
 		var propertyRowsHTML = {OTHER_GROUP_NAME: ''};
 		var groupsHeaderRowHTML = {};
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
-		var customTypes = options.customTypes || {};
 
 		var currGroup;
 		for (var prop in obj) {
@@ -69,7 +68,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, customTypes);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -133,9 +132,9 @@
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
-	 * @param {object} customTypes - an object describing additionnal types renderers
+	 * @param {object} options - The global options object
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, customTypes) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options) {
 		if (!name) {
 			return '';
 		}
@@ -150,9 +149,9 @@
 
 		// check if type is registered in customTypes
 		var isCustomType = false;
-		for (var customType in customTypes) {
+		for (var customType in options.customTypes) {
 			if (type === customType) {
-				isCustomType = customTypes[customType];
+				isCustomType = options.customTypes[customType];
 			}
 		}
 
@@ -234,12 +233,21 @@
 			}
 		}
 
-		if (typeof meta.description === 'string' && meta.description &&
-			(typeof meta.showHelp === 'undefined' || meta.showHelp)) {
-			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+		var helpIcon = '[?]';
+		if (options.useFontAwesome) {
+			helpIcon = '<i class="fa fa-question-circle-o"></i>';
 		}
 
-		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
+		if (typeof meta.description === 'string' && meta.description &&
+			(typeof meta.showHelp === 'undefined' || meta.showHelp)) {
+			displayName += '<span class="pgTooltip" title="' + meta.description + '">' + helpIcon + '</span>';
+		}
+
+		if (meta.colspan2) {
+			return '<tr class="pgRow"><td colspan="2" class="pgCell">' + valueHTML + '</td></tr>';
+		} else {
+			return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
+		}
 	}
 
 	/**
