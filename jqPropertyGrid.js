@@ -40,6 +40,8 @@
 		// Normalize options
 		options = options && typeof options === 'object' ? options : {};
 		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
+		options.customTypes = options.customTypes || {};
+		options.helpHtml = options.helpHtml || '[?]';
 
 		// Seems like we are ok to create the grid
 		var meta = options.meta;
@@ -48,7 +50,6 @@
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
-		var customTypes = options.customTypes || {};
 
 		var currGroup;
 		for (var prop in obj) {
@@ -69,7 +70,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, customTypes);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -133,9 +134,9 @@
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
-	 * @param {object} customTypes - an object describing additionnal types renderers
+	 * @param {object} options - top level options object for propertyGrid containing all options
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, customTypes) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options) {
 		if (!name) {
 			return '';
 		}
@@ -149,6 +150,7 @@
 		var valueHTML;
 
 		// check if type is registered in customTypes
+		var customTypes = options.customTypes;
 		var isCustomType = false;
 		for (var customType in customTypes) {
 			if (type === customType) {
@@ -236,7 +238,7 @@
 
 		if (typeof meta.description === 'string' && meta.description &&
 			(typeof meta.showHelp === 'undefined' || meta.showHelp)) {
-			displayName += '<span class="pgTooltip" title="' + meta.description + '">[?]</span>';
+			displayName += '<span class="pgTooltip" title="' + meta.description + '">' + options.helpHtml + '</span>';
 		}
 
 		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
