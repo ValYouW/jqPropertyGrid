@@ -241,7 +241,11 @@
 			displayName += '<span class="pgTooltip" title="' + meta.description + '">' + options.helpHtml + '</span>';
 		}
 
-		return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
+		if (meta.colspan2) {
+			return '<tr class="pgRow"><td colspan="2" class="pgCell">' + valueHTML + '</td></tr>';
+		} else {
+			return '<tr class="pgRow"><td class="pgCell">' + displayName + '</td><td class="pgCell">' + valueHTML + '</td></tr>';
+		}
 	}
 
 	/**
