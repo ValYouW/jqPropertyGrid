@@ -61,7 +61,8 @@
 				modernizr: false,
 				framework: 'angular',
 				iHaveNoMeta: 'Never mind...',
-				icon: 'HOME'
+				icon: 'HOME',
+ 				choices: ["Choice 1", "Choice 2", "A really long choice which should trigger the horizontal scrollbar!"]
 			};
 
 			// This is the metadata object that describes the target object properties (optional)
@@ -77,7 +78,8 @@
 				// We can specify type boolean if we want...
 				modernizr: {group: 'Plugins', type: 'boolean', description: 'Whether or not to include modernizr on the page'},
 				framework: {name: 'Framework', group: 'Plugins', type: 'options', options: ['None', {text:'AngularJS', value: 'angular'}, {text:'Backbone.js', value: 'backbone'}], description: 'Whether to include any additional framework'},
-				icon: {name: 'Icon', type: 'icon'}
+				icon: {name: 'Icon', type: 'icon'},
+ 				choices: {name: 'n/a', group: 'Choices (1 per line):', type: 'textarea', colspan2: true}
 			};
 
 			var theCustomTypes = {
@@ -86,6 +88,21 @@
 						return '<i class="fa fa-' + value + '"></i>';
 					},
 					valueFn: function() {return 'Icon field value';}
+				},
+				textarea: {
+					html: function(elemId, name, value, meta) {
+						var html = '<textarea id="' + elemId + '" rows=6 style="white-space: nowrap; overflow-x: auto; width:100%">';
+						if (value instanceof Array) {
+							html += value.join("\n");
+						}
+						html += '</textarea>';
+						return html;
+					},
+					makeValueFn: function(elemId, name, value, meta) {
+						return function() {
+							return $('#' + elemId).val().split('\n');
+						}
+					}
 				}
 			};
 

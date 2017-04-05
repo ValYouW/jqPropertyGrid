@@ -97,6 +97,8 @@ Each property in the metadata object could have the following:
     * If the type is `options` then options should be an array with the drop-down values, if an element in the array is  `string` it will be used both as the value and text of the `option` element. If an element in the array is `object` then it should contains a `text` and `value` properties which would be used on the `option` element
 * description - A description of the property, will be used as tooltip on an hint element (a span with text "[?]")
 * showHelp - If set to false, will disable showing description's span with text "[?]" on property name. Will instead show tooltip on hover of property value (adds title attribute to property value). Can be omitted if default description effect is desired
+* colspan2 - true/false. If true then property input will span both columns and will have no name/label (useful for textarea custom type, see example/index.html)
+
 ### Live example
 See this CodePen page: http://codepen.io/ValYouW/pen/zInBg
 
