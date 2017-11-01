@@ -20,8 +20,10 @@
 	 * Generates the property grid
 	 * @param {object} obj - The object whose properties we want to display
 	 * @param {JQPropertyGridOptions} options - Options object for the component
+     * @param {object} callback - A callback function to fire when any value is changed
 	 */
 	$.fn.jqPropertyGrid = function(obj, options) {
+		var  callback = options.callback;
 		// Check if the user called the 'get' function (to get the values back from the grid).
 		if (typeof obj === 'string' && obj === 'get') {
 			if (typeof this.data(GET_VALS_FUNC_KEY) === 'function') {
@@ -50,6 +52,7 @@
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
+		var el = this;
 
 		var currGroup;
 		for (var prop in obj) {
@@ -70,7 +73,7 @@
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options);
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options, el);
 		}
 
 		// Now we have all the html we need, just assemble it
@@ -135,12 +138,13 @@
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
 	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
 	 * @param {object} options - top level options object for propertyGrid containing all options
+     * @param {object} the container for the property grid
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options, el) {
 		if (!name) {
 			return '';
 		}
-
+		var changedCallback = options.callback;
 		meta = meta || {};
 		// We use the name in the meta if available
 		var displayName = meta.name || name;
@@ -183,6 +187,12 @@
 				};
 			}
 
+			if (changedCallback !== undefined) {
+				$(el).on('change', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).is(':checked'));
+				});
+			}
+
 			// If options create drop-down list
 		} else if (type === 'options' && Array.isArray(meta.options)) {
 			valueHTML = getSelectOptionHtml(elemId, value, meta.options);
@@ -192,11 +202,17 @@
 				};
 			}
 
+			if (changedCallback !== undefined) {
+				$(el).on('change', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).val());
+				});
+			}
+
 			// If number and a jqueryUI spinner is loaded use it
 		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
 			if (postCreateInitFuncs) {
-				postCreateInitFuncs.push(initSpinner(elemId, meta.options));
+				postCreateInitFuncs.push(initSpinner(elemId, meta.options, name, changedCallback, el));
 			}
 
 			if (getValueFuncs) {
@@ -209,7 +225,7 @@
 		} else if (type === 'color' && typeof $.fn.spectrum === 'function') {
 			valueHTML = '<input type="text" id="' + elemId + '" />';
 			if (postCreateInitFuncs) {
-				postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options));
+				postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options, name, changedCallback, el));
 			}
 
 			if (getValueFuncs) {
@@ -233,6 +249,12 @@
 				getValueFuncs[name] = function() {
 					return $('#' + elemId).val();
 				};
+			}
+
+			if (changedCallback !== undefined) {
+				$(el).on('propertychange change keyup paste input', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).val());
+				});
 			}
 		}
 
@@ -272,7 +294,6 @@
 		for (var i = 0; i < options.length; i++) {
 			value = typeof options[i] === 'object' ? options[i].value : options[i];
 			text = typeof options[i] === 'object' ? options[i].text : options[i];
-
 			html += '<option value="' + value + '"' + (selectedValue === value ? ' selected>' : '>');
 			html += text + '</option>';
 		}
@@ -285,9 +306,12 @@
 	 * Gets an init function to a number textbox
 	 * @param {string} id - The number textbox id
 	 * @param {object} [options] - The spinner options
+     * @param {string} name - The name
+     * @param {object} changedCallback - Callback for whent he value changes
+     * @param {object} the container for the property grid
 	 * @returns {function}
 	 */
-	function initSpinner(id, options) {
+	function initSpinner(id, options, name, changedCallback, el) {
 		if (!id) {
 			return null;
 		}
@@ -300,6 +324,11 @@
 
 		return function onSpinnerInit() {
 			$('#' + id).spinner(opts);
+			if (changedCallback !== undefined) {
+				$('#' + id).on('spin', function changed(e, ui) {
+					changedCallback(el, name, ui.value);
+				});
+			}
 		};
 	}
 
@@ -308,9 +337,12 @@
 	 * @param {string} id - The color textbox id
 	 * @param {string} [color] - The current color (e.g #000000)
 	 * @param {object} [options] - The color picker options
+     * @param {string} name - The name
+     * @param {object} changedCallback - Callback for whent he value changes
+     * @param {object} the container for the property grid
 	 * @returns {function}
 	 */
-	function initColorPicker(id, color, options) {
+	function initColorPicker(id, color, options, name, changedCallback, el) {
 		if (!id) {
 			return null;
 		}
@@ -323,6 +355,11 @@
 
 		return function onColorPickerInit() {
 			$('#' + id).spectrum(opts);
+			if (changedCallback !== undefined) {
+				$('#' + id).on('change', function changed(e, color) {
+					changedCallback(el, name, color.toHexString());
+				});
+			}
 		};
 	}
 
