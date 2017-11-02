@@ -23,7 +23,6 @@
      * @param {object} callback - A callback function to fire when any value is changed
 	 */
 	$.fn.jqPropertyGrid = function(obj, options) {
-		var  callback = options.callback;
 		// Check if the user called the 'get' function (to get the values back from the grid).
 		if (typeof obj === 'string' && obj === 'get') {
 			if (typeof this.data(GET_VALS_FUNC_KEY) === 'function') {
@@ -56,12 +55,14 @@
 
 		var currGroup;
 		var properties = [];
-		for(var prop in obj){ properties.push(prop); }
-		if(options.sort){
-			if(typeof options.sort === "boolean"){
+		for (var prop in obj) { 
+			properties.push(prop); 
+		}
+		if(options.sort) {
+			if(typeof options.sort === 'boolean') {
 				properties = properties.sort();
 			}
-			else if(typeof options.sort == "function"){
+			else if(typeof options.sort === 'function') {
 				properties = properties.sort(options.sort);
 			}
 		}
@@ -136,16 +137,16 @@
 
                 var insideHtml = $(this).html();
                 var insideText = $(insideHtml).text();
-                isPlus = insideText[0] === '+' ? true : false;
+                var isPlus = insideText[0] === '+' ? true : false;
                 var subText = insideText.substring(1);
-                var currentText = isPlus ? "-" + subText : "+" + subText;
+                var currentText = isPlus ? '-' + subText : '+' + subText;
                 var currentHtml = insideHtml.replace(insideText, currentText);
                 $(this).html(currentHtml);
                 $(this).nextUntil('tr.pgGroupRow').slideToggle(1);
             });
         }
         else {
-            $("tr.pgGroupRow").each(function (index) {
+            $('tr.pgGroupRow').each(function (index) {
 
                 var insideHtml = $(this).html();
                 var insideText = $(insideHtml).text();
@@ -167,13 +168,13 @@
 
 		if(options.onType){
 			$.each(meta, function (index, value) {
-				var metaType = value["type"];
+				var metaType = value.type;
 				var id = pgId + index;
-				if (metaType != undefined) {
+				if (metaType !== undefined) {
 					options.onType(id, metaType);
 				}
 				else {
-					options.onType(id, "text");
+					options.onType(id, 'text');
 	
 				}
 			});			
@@ -187,8 +188,7 @@
 	 * @param {string} displayName - The group display name
 	 */
 	function getGroupHeaderRowHtml(displayName, options) {
-		return '<tr class="pgGroupRow ' +(options.isCollapsible ? 'pgCollapsible' : '')+'">' 
-				+'<td colspan="2" class="pgGroupCell">' + (options.isCollapsible ? '- ' : '') + displayName + '</td></tr>';
+		return '<tr class="pgGroupRow ' +(options.isCollapsible ? 'pgCollapsible' : '') + '"><td colspan="2" class="pgGroupCell">' + (options.isCollapsible ? '- ' : '') + displayName + '</td></tr>';
 	}
 
 	/**
