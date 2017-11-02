@@ -55,18 +55,19 @@
 
 		var currGroup;
 		var properties = [];
-		for (var prop in obj) { 
-			properties.push(prop); 
+		for (var prop in obj) {
+			properties.push(prop);
 		}
-		if(options.sort) {
-			if(typeof options.sort === 'boolean') {
+
+		if (options.sort) {
+			if (typeof options.sort === 'boolean') {
 				properties = properties.sort();
-			}
-			else if(typeof options.sort === 'function') {
+			} else if (typeof options.sort === 'function') {
 				properties = properties.sort(options.sort);
 			}
 		}
-		properties.forEach(function(prop) {
+
+		properties.forEach(function handleProperty(prop) {
 			// Skip if this is not a direct property, a function, or its meta says it's non browsable
 			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function' || (meta[prop] && meta[prop].browsable === false)) {
 				return;
@@ -131,55 +132,53 @@
 
 		this.data(GET_VALS_FUNC_KEY, getValues);
 
-        if (options.isCollapsible === true) {
-            // Support Collapse Mode <START>
-            $(el).find('.pgGroupRow').click(function () {
+		if (options.isCollapsible === true) {
+			// Support Collapse Mode <START>
+			$(el).find('.pgGroupRow').click(function onGroupRowClick() {
 
-                var insideHtml = $(this).html();
-                var insideText = $(insideHtml).text();
-                var isPlus = insideText[0] === '+' ? true : false;
-                var subText = insideText.substring(1);
-                var currentText = isPlus ? '-' + subText : '+' + subText;
-                var currentHtml = insideHtml.replace(insideText, currentText);
-                $(this).html(currentHtml);
-                $(this).nextUntil('tr.pgGroupRow').slideToggle(1);
-            });
-        }
-        else {
-            $('tr.pgGroupRow').each(function (index) {
+				var insideHtml = $(this).html();
+				var insideText = $(insideHtml).text();
+				var isPlus = insideText[0] === '+' ? true : false;
+				var subText = insideText.substring(1);
+				var currentText = isPlus ? '-' + subText : '+' + subText;
+				var currentHtml = insideHtml.replace(insideText, currentText);
+				$(this).html(currentHtml);
+				$(this).nextUntil('tr.pgGroupRow').slideToggle(1);
+			});
+		}		else {
+			$('tr.pgGroupRow').each(function handleGroupRow(index) {
 
-                var insideHtml = $(this).html();
-                var insideText = $(insideHtml).text();
+				var insideHtml = $(this).html();
+				var insideText = $(insideHtml).text();
 
-                $(this).css('cursor', 'default');
-
-
-                var first = insideText[0] === '-';
-                var second = insideText[1] === ' ';
-                if (first && second) {
-                    var subText = insideText.substring(2);
-                    var currentHtml = insideHtml.replace(insideText, subText);
-                    $(this).html(currentHtml);
-                }
+				$(this).css('cursor', 'default');
 
 
-            });
-        }
+				var first = insideText[0] === '-';
+				var second = insideText[1] === ' ';
+				if (first && second) {
+					var subText = insideText.substring(2);
+					var currentHtml = insideHtml.replace(insideText, subText);
+					$(this).html(currentHtml);
+				}
 
-		if(options.onType){
-			$.each(meta, function (index, value) {
+
+			});
+		}
+
+		if (options.onType) {
+			$.each(meta, function handleMeta(index, value) {
 				var metaType = value.type;
 				var id = pgId + index;
 				if (metaType !== undefined) {
 					options.onType(id, metaType);
-				}
-				else {
+				} else {
 					options.onType(id, 'text');
-	
+
 				}
-			});			
+			});
 		}
-        // Support Collapse Mode <END>
+		// Support Collapse Mode <END>
 
 	};
 
@@ -188,7 +187,7 @@
 	 * @param {string} displayName - The group display name
 	 */
 	function getGroupHeaderRowHtml(displayName, options) {
-		return '<tr class="pgGroupRow ' +(options.isCollapsible ? 'pgCollapsible' : '') + '"><td colspan="2" class="pgGroupCell">' + (options.isCollapsible ? '- ' : '') + displayName + '</td></tr>';
+		return '<tr class="pgGroupRow ' + (options.isCollapsible ? 'pgCollapsible' : '') + '"><td colspan="2" class="pgGroupCell">' + (options.isCollapsible ? '- ' : '') + displayName + '</td></tr>';
 	}
 
 	/**
@@ -206,6 +205,7 @@
 		if (!name) {
 			return '';
 		}
+
 		var changedCallback = options.callback;
 		meta = meta || {};
 		// We use the name in the meta if available
@@ -388,7 +388,7 @@
 			$('#' + id).spinner(opts);
 			if (changedCallback !== undefined) {
 				$('#' + id).on('spin change keyup paste input', function changed(e, ui) {
-					changedCallback(el, name, ui ? ui.value : $(e.target).val() );
+					changedCallback(el, name, ui ? ui.value : $(e.target).val());
 				});
 			}
 		};
