@@ -70,9 +70,13 @@ var theCustomTypes = {
 var options = {
 	meta: theMeta,
 	customTypes: theCustomTypes,
-    helpHtml: '[?]', // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
+    // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
+    helpHtml: '[?]', 
     callback: propertyChangedCallback,
+    //default to false
     isCollapsible: true,
+    //default to false, accept boolean or a sort function
+    sort: true,
 };
 
 // Create the grid

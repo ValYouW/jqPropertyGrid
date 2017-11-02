@@ -55,10 +55,20 @@
 		var el = this;
 
 		var currGroup;
-		for (var prop in obj) {
+		var properties = [];
+		for(var prop in obj){ properties.push(prop); }
+		if(options.sort){
+			if(typeof options.sort === "boolean"){
+				properties = properties.sort();
+			}
+			else if(typeof options.sort == "function"){
+				properties = properties.sort(options.sort);
+			}
+		}
+		properties.forEach(function(prop) {
 			// Skip if this is not a direct property, a function, or its meta says it's non browsable
 			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function' || (meta[prop] && meta[prop].browsable === false)) {
-				continue;
+				return;
 			}
 
 			// Check what is the group of the current property or use the default 'Other' group
@@ -74,7 +84,7 @@
 
 			// Append the current cell html into the group html
 			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options, el);
-		}
+		});
 
 		// Now we have all the html we need, just assemble it
 		var innerHTML = '<table class="pgTable">';
@@ -119,8 +129,6 @@
 		};
 
 		this.data(GET_VALS_FUNC_KEY, getValues);
-
-
 
         if (options.isCollapsible === true) {
             // Support Collapse Mode <START>
@@ -379,8 +387,8 @@
 		return function onSpinnerInit() {
 			$('#' + id).spinner(opts);
 			if (changedCallback !== undefined) {
-				$('#' + id).on('spin', function changed(e, ui) {
-					changedCallback(el, name, ui.value);
+				$('#' + id).on('spin change keyup paste input', function changed(e, ui) {
+					changedCallback(el, name, ui ? ui.value : $(e.target).val() );
 				});
 			}
 		};
