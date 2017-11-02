@@ -71,7 +71,8 @@ var options = {
 	meta: theMeta,
 	customTypes: theCustomTypes,
     helpHtml: '[?]', // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
-	callback: propertyChangedCallback
+    callback: propertyChangedCallback,
+    isCollapsible: true,
 };
 
 // Create the grid

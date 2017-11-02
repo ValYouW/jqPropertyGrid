@@ -66,7 +66,7 @@
 
 			// If this is the first time we run into this group create the group row
 			if (currGroup !== OTHER_GROUP_NAME && !groupsHeaderRowHTML[currGroup]) {
-				groupsHeaderRowHTML[currGroup] = getGroupHeaderRowHtml(currGroup);
+				groupsHeaderRowHTML[currGroup] = getGroupHeaderRowHtml(currGroup, options);
 			}
 
 			// Initialize the group cells html
@@ -87,7 +87,7 @@
 
 		// Finally we add the 'Other' group (if we have something there)
 		if (propertyRowsHTML[OTHER_GROUP_NAME]) {
-			innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME);
+			innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME, options);
 			innerHTML += propertyRowsHTML[OTHER_GROUP_NAME];
 		}
 
@@ -119,14 +119,68 @@
 		};
 
 		this.data(GET_VALS_FUNC_KEY, getValues);
+
+
+
+        if (options.isCollapsible === true) {
+            // Support Collapse Mode <START>
+            $(el).find('.pgGroupRow').click(function () {
+
+                var insideHtml = $(this).html();
+                var insideText = $(insideHtml).text();
+                isPlus = insideText[0] === '+' ? true : false;
+                var subText = insideText.substring(1);
+                var currentText = isPlus ? "-" + subText : "+" + subText;
+                var currentHtml = insideHtml.replace(insideText, currentText);
+                $(this).html(currentHtml);
+                $(this).nextUntil('tr.pgGroupRow').slideToggle(1);
+            });
+        }
+        else {
+            $("tr.pgGroupRow").each(function (index) {
+
+                var insideHtml = $(this).html();
+                var insideText = $(insideHtml).text();
+
+                $(this).css('cursor', 'default');
+
+
+                var first = insideText[0] === '-';
+                var second = insideText[1] === ' ';
+                if (first && second) {
+                    var subText = insideText.substring(2);
+                    var currentHtml = insideHtml.replace(insideText, subText);
+                    $(this).html(currentHtml);
+                }
+
+
+            });
+        }
+
+		if(options.onType){
+			$.each(meta, function (index, value) {
+				var metaType = value["type"];
+				var id = pgId + index;
+				if (metaType != undefined) {
+					options.onType(id, metaType);
+				}
+				else {
+					options.onType(id, "text");
+	
+				}
+			});			
+		}
+        // Support Collapse Mode <END>
+
 	};
 
 	/**
 	 * Gets the html of a group header row
 	 * @param {string} displayName - The group display name
 	 */
-	function getGroupHeaderRowHtml(displayName) {
-		return '<tr class="pgGroupRow"><td colspan="2" class="pgGroupCell">' + displayName + '</td></tr>';
+	function getGroupHeaderRowHtml(displayName, options) {
+		return '<tr class="pgGroupRow ' +(options.isCollapsible ? 'pgCollapsible' : '')+'">' 
+				+'<td colspan="2" class="pgGroupCell">' + (options.isCollapsible ? '- ' : '') + displayName + '</td></tr>';
 	}
 
 	/**

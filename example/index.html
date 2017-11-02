@@ -109,6 +109,7 @@
 			function propertyChangedCallback(grid, name, value) {
 				// handle callback
 				console.log(name + ' ' + value);
+				$('#events-log').html( "property '" + name + "' changed to '" + value + "'<br>" + $('#events-log').html() );
 			}
 
 
@@ -117,6 +118,7 @@
 				customTypes: theCustomTypes,
 				helpHtml: '<i class="fa fa-question-circle-o"></i>',
 				callback: propertyChangedCallback,
+				isCollapsible: true,
 			});
 
 			$('#btnGetValues').click(function() {
@@ -135,5 +137,6 @@
 		<textarea id="txtValues" rows="20" cols="50"></textarea>
 		<input id="btnGetValues" type="button" value="Get values"/>
 	</div>
+	<div id="events-log" style="float:left;"></div>
 </body>
 </html>
