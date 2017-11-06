@@ -68,14 +68,14 @@ var theCustomTypes = {
 
 // Options object
 var options = {
-	meta: theMeta,
-	customTypes: theCustomTypes,
+    meta: theMeta,
+    customTypes: theCustomTypes,
     // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
     helpHtml: '[?]', 
     callback: propertyChangedCallback,
-    //default to false
+    // Allow collapsing property group. default to false.
     isCollapsible: true,
-    //default to false, accept boolean or a sort function
+    // Sort properties, accept boolean or a sort function. default to false.
     sort: true,
 };
 
