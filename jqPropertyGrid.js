@@ -42,6 +42,9 @@
 		options.meta = options.meta && typeof options.meta === 'object' ? options.meta : {};
 		options.customTypes = options.customTypes || {};
 		options.helpHtml = options.helpHtml || '[?]';
+		options.sort = (typeof options.sort === 'undefined') ? false : options.sort;
+		options.isCollapsible = (typeof options.isCollapsible === 'undefined') ? false : !!(options.isCollapsible);
+		options.callback = (typeof options.callback === 'function') ? options.callback : null;
 
 		// Seems like we are ok to create the grid
 		var meta = options.meta;
@@ -50,12 +53,23 @@
 		var postCreateInitFuncs = [];
 		var getValueFuncs = {};
 		var pgId = 'pg' + (pgIdSequence++);
+		var el = this;
 
 		var currGroup;
-		for (var prop in obj) {
-			// Skip if this is not a direct property, a function, or its meta says it's non browsable
-			if (!obj.hasOwnProperty(prop) || typeof obj[prop] === 'function' || (meta[prop] && meta[prop].browsable === false)) {
-				continue;
+		var properties = Object.keys(obj);
+
+		if (options.sort) {
+			if (typeof options.sort === 'boolean') {
+				properties = properties.sort();
+			} else if (typeof options.sort === 'function') {
+				properties = properties.sort(options.sort);
+			}
+		}
+
+		properties.forEach(function handleProperty(prop) {
+			// Skip if this is a function, or its meta says it's non browsable
+			if (typeof obj[prop] === 'function' || (meta[prop] && meta[prop].browsable === false)) {
+				return;
 			}
 
 			// Check what is the group of the current property or use the default 'Other' group
@@ -63,15 +77,15 @@
 
 			// If this is the first time we run into this group create the group row
 			if (currGroup !== OTHER_GROUP_NAME && !groupsHeaderRowHTML[currGroup]) {
-				groupsHeaderRowHTML[currGroup] = getGroupHeaderRowHtml(currGroup);
+				groupsHeaderRowHTML[currGroup] = getGroupHeaderRowHtml(currGroup, options.isCollapsible);
 			}
 
 			// Initialize the group cells html
 			propertyRowsHTML[currGroup] = propertyRowsHTML[currGroup] || '';
 
 			// Append the current cell html into the group html
-			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options);
-		}
+			propertyRowsHTML[currGroup] += getPropertyRowHtml(pgId, prop, obj[prop], meta[prop], postCreateInitFuncs, getValueFuncs, options, el);
+		});
 
 		// Now we have all the html we need, just assemble it
 		var innerHTML = '<table class="pgTable">';
@@ -84,7 +98,7 @@
 
 		// Finally we add the 'Other' group (if we have something there)
 		if (propertyRowsHTML[OTHER_GROUP_NAME]) {
-			innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME);
+			innerHTML += getGroupHeaderRowHtml(OTHER_GROUP_NAME, options.isCollapsible);
 			innerHTML += propertyRowsHTML[OTHER_GROUP_NAME];
 		}
 
@@ -116,14 +130,47 @@
 		};
 
 		this.data(GET_VALS_FUNC_KEY, getValues);
+
+		if (options.isCollapsible) {
+			// Support Collapse Mode <START>
+			$(el).find('.pgGroupRow').click(function onGroupRowClick() {
+				var insideHtml = $(this).html();
+				var insideText = $(insideHtml).text();
+				var isPlus = insideText[0] === '+';
+				var subText = insideText.substring(1);
+				var currentText = isPlus ? '-' + subText : '+' + subText;
+				var currentHtml = insideHtml.replace(insideText, currentText);
+				$(this).html(currentHtml);
+				$(this).nextUntil('tr.pgGroupRow').slideToggle(1);
+			});
+		} else {
+			$('tr.pgGroupRow').each(function handleGroupRow(index) {
+
+				var insideHtml = $(this).html();
+				var insideText = $(insideHtml).text();
+
+				$(this).css('cursor', 'default');
+
+				var first = insideText[0] === '-';
+				var second = insideText[1] === ' ';
+				if (first && second) {
+					var subText = insideText.substring(2);
+					var currentHtml = insideHtml.replace(insideText, subText);
+					$(this).html(currentHtml);
+				}
+			});
+		}
+
+		// Support Collapse Mode <END>
 	};
 
 	/**
 	 * Gets the html of a group header row
 	 * @param {string} displayName - The group display name
+	 * @param {boolean} isCollapsible - Whether the group should support expand/collapse
 	 */
-	function getGroupHeaderRowHtml(displayName) {
-		return '<tr class="pgGroupRow"><td colspan="2" class="pgGroupCell">' + displayName + '</td></tr>';
+	function getGroupHeaderRowHtml(displayName, isCollapsible) {
+		return '<tr class="pgGroupRow ' + (isCollapsible ? 'pgCollapsible' : '') + '"><td colspan="2" class="pgGroupCell">' + (isCollapsible ? '- ' : '') + displayName + '</td></tr>';
 	}
 
 	/**
@@ -133,14 +180,16 @@
 	 * @param {*} value - The current property value
 	 * @param {object} meta - A metadata object describing this property
 	 * @param {function[]} [postCreateInitFuncs] - An array to fill with functions to run after the grid was created
-	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the propery selected value
+	 * @param {object.<string, function>} [getValueFuncs] - A dictionary where the key is the property name and the value is a function to retrieve the property selected value
 	 * @param {object} options - top level options object for propertyGrid containing all options
+     * @param {object} el - the container for the property grid
 	 */
-	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options) {
+	function getPropertyRowHtml(pgId, name, value, meta, postCreateInitFuncs, getValueFuncs, options, el) {
 		if (!name) {
 			return '';
 		}
 
+		var changedCallback = options.callback;
 		meta = meta || {};
 		// We use the name in the meta if available
 		var displayName = meta.name || name;
@@ -151,21 +200,22 @@
 
 		// check if type is registered in customTypes
 		var customTypes = options.customTypes;
-		var isCustomType = false;
-		for (var customType in customTypes) {
-			if (type === customType) {
-				isCustomType = customTypes[customType];
+		var customType;
+		for (var ct in customTypes) {
+			if (type === ct) {
+				customType = customTypes[ct];
+				break;
 			}
 		}
 
-		// If value was handled by custom type
-		if (isCustomType !== false) {
-			valueHTML = isCustomType.html(elemId, name, value, meta);
+		// If custom type found use it
+		if (customType) {
+			valueHTML = customType.html(elemId, name, value, meta);
 			if (getValueFuncs) {
-				if (isCustomType.hasOwnProperty('makeValueFn')) {
-					getValueFuncs[name] = isCustomType.makeValueFn(elemId, name, value, meta);
-				} else if (isCustomType.hasOwnProperty('valueFn')) {
-					getValueFuncs[name] = isCustomType.valueFn;
+				if (customType.hasOwnProperty('makeValueFn')) {
+					getValueFuncs[name] = customType.makeValueFn(elemId, name, value, meta);
+				} else if (customType.hasOwnProperty('valueFn')) {
+					getValueFuncs[name] = customType.valueFn;
 				} else {
 					getValueFuncs[name] = function() {
 						return $('#' + elemId).val();
@@ -183,6 +233,12 @@
 				};
 			}
 
+			if (changedCallback) {
+				$(el).on('change', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).is(':checked'));
+				});
+			}
+
 			// If options create drop-down list
 		} else if (type === 'options' && Array.isArray(meta.options)) {
 			valueHTML = getSelectOptionHtml(elemId, value, meta.options);
@@ -192,11 +248,17 @@
 				};
 			}
 
+			if (changedCallback) {
+				$(el).on('change', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).val());
+				});
+			}
+
 			// If number and a jqueryUI spinner is loaded use it
 		} else if (typeof $.fn.spinner === 'function' && (type === 'number' || (type === '' && typeof value === 'number'))) {
 			valueHTML = '<input type="text" id="' + elemId + '" value="' + value + '" style="width:50px" />';
 			if (postCreateInitFuncs) {
-				postCreateInitFuncs.push(initSpinner(elemId, meta.options));
+				postCreateInitFuncs.push(initSpinner(elemId, meta.options, name, changedCallback, el));
 			}
 
 			if (getValueFuncs) {
@@ -209,7 +271,7 @@
 		} else if (type === 'color' && typeof $.fn.spectrum === 'function') {
 			valueHTML = '<input type="text" id="' + elemId + '" />';
 			if (postCreateInitFuncs) {
-				postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options));
+				postCreateInitFuncs.push(initColorPicker(elemId, value, meta.options, name, changedCallback, el));
 			}
 
 			if (getValueFuncs) {
@@ -233,6 +295,12 @@
 				getValueFuncs[name] = function() {
 					return $('#' + elemId).val();
 				};
+			}
+
+			if (changedCallback) {
+				$(el).on('propertychange change keyup paste input', '#' + elemId, function changed() {
+					changedCallback(this, name, $('#' + elemId).val());
+				});
 			}
 		}
 
@@ -272,7 +340,6 @@
 		for (var i = 0; i < options.length; i++) {
 			value = typeof options[i] === 'object' ? options[i].value : options[i];
 			text = typeof options[i] === 'object' ? options[i].text : options[i];
-
 			html += '<option value="' + value + '"' + (selectedValue === value ? ' selected>' : '>');
 			html += text + '</option>';
 		}
@@ -285,9 +352,12 @@
 	 * Gets an init function to a number textbox
 	 * @param {string} id - The number textbox id
 	 * @param {object} [options] - The spinner options
+     * @param {string} name - The name
+     * @param {function} changedCallback - Callback for when he value changes
+     * @param {object} el - the container for the property grid
 	 * @returns {function}
 	 */
-	function initSpinner(id, options) {
+	function initSpinner(id, options, name, changedCallback, el) {
 		if (!id) {
 			return null;
 		}
@@ -299,7 +369,13 @@
 		opts.change = typeof opts.change === 'undefined' ? onSpinnerChange : opts.change;
 
 		return function onSpinnerInit() {
-			$('#' + id).spinner(opts);
+			var $elem = $('#' + id);
+			$elem.spinner(opts);
+			if (changedCallback) {
+				$elem.on('spin change keyup paste input', function changed(e, ui) {
+					changedCallback(el, name, ui ? ui.value : $(e.target).val());
+				});
+			}
 		};
 	}
 
@@ -308,9 +384,12 @@
 	 * @param {string} id - The color textbox id
 	 * @param {string} [color] - The current color (e.g #000000)
 	 * @param {object} [options] - The color picker options
+     * @param {string} name - The name
+     * @param {function} changedCallback - Callback for when he value changes
+     * @param {object} el - the container for the property grid
 	 * @returns {function}
 	 */
-	function initColorPicker(id, color, options) {
+	function initColorPicker(id, color, options, name, changedCallback, el) {
 		if (!id) {
 			return null;
 		}
@@ -322,7 +401,13 @@
 		}
 
 		return function onColorPickerInit() {
-			$('#' + id).spectrum(opts);
+			var $elem = $('#' + id);
+			$elem.spectrum(opts);
+			if (changedCallback !== undefined) {
+				$elem.on('change', function changed(e, color) {
+					changedCallback(el, name, color.toHexString());
+				});
+			}
 		};
 	}
 

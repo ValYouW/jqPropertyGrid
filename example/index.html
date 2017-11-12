@@ -11,13 +11,13 @@
 	</style>
 
 	<link rel='stylesheet' href='../jqPropertyGrid.css' />
-	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
 	<link rel='stylesheet' href='http://bgrins.github.com/spectrum/spectrum.css' />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="http://bgrins.github.com/spectrum/spectrum.js" ></script>
 	<script src="../jqPropertyGrid.js"></script>
 
@@ -106,10 +106,22 @@
 				}
 			};
 
+			function propertyChangedCallback(grid, name, value) {
+				// handle callback
+				console.log(name + ' ' + value);
+				$('#events-log').html( "property '" + name + "' changed to '" + value + "'<br>" + $('#events-log').html() );
+			}
+
+
 			$('#propGrid2').jqPropertyGrid(theObj, {
 				meta: theMeta, 
 				customTypes: theCustomTypes,
-				helpHtml: '<i class="fa fa-question-circle-o"></i>'
+				helpHtml: '<i class="fa fa-question-circle-o"></i>',
+				callback: propertyChangedCallback,
+				isCollapsible: true,
+				sort: function(a,b){
+					return a > b ? 1 : a < b ? -1 : 0; 
+				},
 			});
 
 			$('#btnGetValues').click(function() {
@@ -128,5 +140,6 @@
 		<textarea id="txtValues" rows="20" cols="50"></textarea>
 		<input id="btnGetValues" type="button" value="Get values"/>
 	</div>
+	<div id="events-log" style="float:left;"></div>
 </body>
 </html>

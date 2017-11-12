@@ -48,6 +48,11 @@ var theMeta = {
 
 };
 
+// Callback function. Called when any entry in the grid is changedCallback
+function propertyChangedCallback(grid, name, value) {
+    // handle callback
+    console.log(name + ' ' + value);
+}
 // This is the customTypes object that describes additionnal types, and their renderers (optional)
 var theCustomTypes = {
     ref: { // name of custom type
@@ -63,9 +68,15 @@ var theCustomTypes = {
 
 // Options object
 var options = {
-	meta: theMeta,
-	customTypes: theCustomTypes,
-    helpHtml: '[?]' // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
+    meta: theMeta,
+    customTypes: theCustomTypes,
+    // default help "icon" is text in brackets, can also provide FontAwesome HTML for an icon (see examples)
+    helpHtml: '[?]', 
+    callback: propertyChangedCallback,
+    // Allow collapsing property group. default to false.
+    isCollapsible: true,
+    // Sort properties, accept boolean or a sort function. default to false.
+    sort: true,
 };
 
 // Create the grid
